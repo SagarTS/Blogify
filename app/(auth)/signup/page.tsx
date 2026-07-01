@@ -4,20 +4,21 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
+import { APP_NAME } from "@/utils/constants";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
-import { type LoginFormData, loginSchema } from "@/schemas/auth.schema";
+import { signupSchema, type SignupFormData } from "@/schemas/auth.schema";
 
-const LoginPage = () => {
+const SignupPage = () => {
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema),
+  } = useForm<SignupFormData>({
+    resolver: zodResolver(signupSchema),
   });
 
-  const onSubmit = async (data: LoginFormData) => {
+  const onSubmit = async (data: SignupFormData) => {
     console.log(data);
   };
 
@@ -35,14 +36,21 @@ const LoginPage = () => {
         <div className="w-full max-w-lg sm:shadow-[0_0_25px_0_rgba(0,0,0,0.15)] p-0 rounded-md sm:p-12">
           <div className="mb-10 text-center">
             <h1 className="text-[35px] font-semibold text-neutral-900 dark:text-neutral-100">
-              Welcome
+              Create your account
             </h1>
             <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
-              Sign in to your account
+              Start writing on <span className="font-semibold">{APP_NAME}</span>
             </p>
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <Input
+              label="Name"
+              placeholder="Alex Rivera"
+              error={errors.name?.message}
+              {...register("name")}
+            />
+
             <Input
               label="Email"
               type="email"
@@ -50,25 +58,34 @@ const LoginPage = () => {
               error={errors.email?.message}
               {...register("email")}
             />
+
             <Input
               label="Password"
               type="password"
-              placeholder="********"
+              placeholder="••••••••"
               error={errors.password?.message}
               {...register("password")}
             />
 
+            <Input
+              label="Confirm password"
+              type="password"
+              placeholder="••••••••"
+              error={errors.confirmPassword?.message}
+              {...register("confirmPassword")}
+            />
+
             <Button type="submit" fullWidth className="mt-2">
-              Sign In
+              Create account
             </Button>
 
             <p className="text-center text-sm text-neutral-500 dark:text-neutral-400">
-              Don&apos;t have an account?{" "}
+              Already have an account?{" "}
               <Link
-                href="/signup"
+                href="/login"
                 className="font-medium text-[#0099ff] hover:underline dark:text-neutral-100"
               >
-                Sign up
+                Sign in
               </Link>
             </p>
           </form>
@@ -78,4 +95,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default SignupPage;
