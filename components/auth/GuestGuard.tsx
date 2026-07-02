@@ -1,6 +1,5 @@
 "use client";
 
-import { Loader2 } from "lucide-react";
 import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
@@ -17,11 +16,11 @@ export const GuestGuard = ({ children }: { children: React.ReactNode }) => {
   }, [isAuthenticated, router]);
 
   if (!isInitialized) {
-    return <Loader2 className="h-20 w-20 animate-spin" />;
+    return null;
   }
 
   if (isAuthenticated) {
-    return <Loader2 className="h-20 w-20 animate-spin" />;
+    return null;
   }
 
   return <>{children}</>;
