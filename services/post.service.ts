@@ -1,5 +1,6 @@
+import { generateId } from "@/utils";
 import { seedPosts } from "@/data";
-import type { Post, PaginatedResponse } from "@/types";
+import type { Post, PaginatedResponse, User } from "@/types";
 
 export interface GetPostsParams {
   page?: number;
@@ -73,6 +74,30 @@ export async function getById(id: string): Promise<Post> {
     throw { message: "Post not found", code: "NOT_FOUND", status: 404 };
   }
   return post;
+}
+
+export async function createPost(data: {
+  title: string;
+  content: string;
+  excerpt: string;
+  category: string;
+  tags: string[];
+  author: User;
+}): Promise<Post> {
+  await delay(400);
+
+  const now = new Date().toISOString();
+  const newPost: Post = {
+    id: `post_${generateId()}`,
+    ...data,
+    author: { id: data.author.id, name: data.author.name },
+    createdAt: now,
+    updatedAt: now,
+    published: true,
+  };
+
+  seedPosts.unshift(newPost);
+  return newPost;
 }
 
 export async function deletePost(id: string): Promise<void> {

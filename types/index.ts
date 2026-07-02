@@ -3,7 +3,7 @@ export interface User {
   name: string;
   email: string;
   avatar?: string;
-  createdAt: string;
+  createdAt?: string;
 }
 
 export interface Post {
@@ -13,7 +13,7 @@ export interface Post {
   excerpt: string;
   category: string;
   tags: string[];
-  authorId: string;
+  authorId?: string;
   author: Pick<User, "id" | "name" | "avatar">;
   createdAt: string;
   updatedAt: string;

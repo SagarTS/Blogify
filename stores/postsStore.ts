@@ -1,12 +1,13 @@
 import { create } from "zustand";
 
-import type { PaginatedResponse, Post } from "@/types";
 import {
   deletePost,
   getAll,
   getById,
+  createPost,
   type GetPostsParams,
 } from "@/services/post.service";
+import type { PaginatedResponse, Post, User } from "@/types";
 
 interface PostsState {
   posts: Post[];
@@ -31,6 +32,14 @@ interface PostsState {
 interface PostsActions {
   fetchPosts: (params?: GetPostsParams) => Promise<void>;
   fetchPost: (id: string) => Promise<void>;
+  createPost: (data: {
+    title: string;
+    content: string;
+    excerpt: string;
+    category: string;
+    tags: string[];
+    author: User;
+  }) => Promise<Post>;
   deletePost: (id: string) => Promise<void>;
   setFilters: (filters: Partial<PostsState["filters"]>) => void;
   setPage: (page: number) => void;
@@ -91,6 +100,24 @@ export const usePostsStore = create<PostsState & PostsActions>((set, get) => ({
       const message =
         error instanceof Error ? error.message : "Failed to load post";
       set({ isLoading: false, error: message });
+    }
+  },
+
+  createPost: async (data) => {
+    set({ isCreating: true, error: null });
+    try {
+      const post = await createPost(data);
+      set((state) => ({
+        posts: [post, ...state.posts],
+        total: state.total + 1,
+        isCreating: false,
+      }));
+      return post;
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Failed to create post";
+      set({ isCreating: false, error: message });
+      throw error;
     }
   },
 
