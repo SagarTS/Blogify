@@ -1,14 +1,22 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 
+import { useAuth } from "@/hooks/useAuth";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { type LoginFormData, loginSchema } from "@/schemas/auth.schema";
 
 const LoginPage = () => {
+  const { login } = useAuth();
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   const {
     register,
     handleSubmit,
@@ -18,7 +26,18 @@ const LoginPage = () => {
   });
 
   const onSubmit = async (data: LoginFormData) => {
-    console.log(data);
+    const { email, password } = data;
+
+    setIsLoading(true);
+    setError(null);
+    try {
+      login(data.email, data.password);
+      router.push("/");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -43,6 +62,14 @@ const LoginPage = () => {
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            {error && (
+              <div
+                role="alert"
+                className="rounded-md bg-red-50 p-3 text-sm text-red-600 dark:bg-red-900/30 dark:text-red-400"
+              >
+                {error}
+              </div>
+            )}
             <Input
               label="Email"
               type="email"
@@ -58,7 +85,12 @@ const LoginPage = () => {
               {...register("password")}
             />
 
-            <Button type="submit" fullWidth className="mt-2">
+            <Button
+              type="submit"
+              fullWidth
+              isLoading={isLoading}
+              className="mt-2"
+            >
               Sign In
             </Button>
 

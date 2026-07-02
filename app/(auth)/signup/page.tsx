@@ -1,15 +1,23 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 
+import { useAuth } from "@/hooks/useAuth";
 import { APP_NAME } from "@/utils/constants";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { signupSchema, type SignupFormData } from "@/schemas/auth.schema";
 
 const SignupPage = () => {
+  const router = useRouter();
+  const { signup } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   const {
     register,
     handleSubmit,
@@ -19,7 +27,17 @@ const SignupPage = () => {
   });
 
   const onSubmit = async (data: SignupFormData) => {
-    console.log(data);
+    const { name, email, password } = data;
+    setIsLoading(true);
+    setError(null);
+    try {
+      signup(name, email, password);
+      router.push("/");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -44,6 +62,14 @@ const SignupPage = () => {
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            {error && (
+              <div
+                role="alert"
+                className="rounded-md bg-red-50 p-3 text-sm text-red-600 dark:bg-red-900/30 dark:text-red-400"
+              >
+                {error}
+              </div>
+            )}
             <Input
               label="Name"
               placeholder="Alex Rivera"
@@ -75,7 +101,12 @@ const SignupPage = () => {
               {...register("confirmPassword")}
             />
 
-            <Button type="submit" fullWidth className="mt-2">
+            <Button
+              type="submit"
+              fullWidth
+              isLoading={isLoading}
+              className="mt-2"
+            >
               Create account
             </Button>
 
