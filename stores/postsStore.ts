@@ -1,10 +1,11 @@
 import { create } from "zustand";
 
 import {
-  deletePost,
   getAll,
   getById,
   createPost,
+  deletePost,
+  updatePost,
   type GetPostsParams,
 } from "@/services/post.service";
 import type { PaginatedResponse, Post, User } from "@/types";
@@ -40,6 +41,16 @@ interface PostsActions {
     tags: string[];
     author: User;
   }) => Promise<Post>;
+  updatePost: (
+    id: string,
+    data: Partial<{
+      title: string;
+      content: string;
+      excerpt: string;
+      category: string;
+      tags: string[];
+    }>,
+  ) => Promise<Post>;
   deletePost: (id: string) => Promise<void>;
   setFilters: (filters: Partial<PostsState["filters"]>) => void;
   setPage: (page: number) => void;
@@ -117,6 +128,24 @@ export const usePostsStore = create<PostsState & PostsActions>((set, get) => ({
       const message =
         error instanceof Error ? error.message : "Failed to create post";
       set({ isCreating: false, error: message });
+      throw error;
+    }
+  },
+
+  updatePost: async (id, data) => {
+    set({ isUpdating: true, error: null });
+    try {
+      const post = await updatePost(id, data);
+      set((state) => ({
+        posts: state.posts.map((p) => (p.id === id ? post : p)),
+        currentPost: post,
+        isUpdating: false,
+      }));
+      return post;
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Failed to update post";
+      set({ isUpdating: false, error: message });
       throw error;
     }
   },

@@ -100,6 +100,32 @@ export async function createPost(data: {
   return newPost;
 }
 
+export async function updatePost(
+  id: string,
+  data: Partial<{
+    title: string;
+    content: string;
+    excerpt: string;
+    category: string;
+    tags: string[];
+  }>,
+): Promise<Post> {
+  await delay(500);
+
+  const index = seedPosts.findIndex((p) => p.id === id);
+  if (index === -1) {
+    throw { message: "Post not found", code: "NOT_FOUND", status: 404 };
+  }
+
+  seedPosts[index] = {
+    ...seedPosts[index],
+    ...data,
+    updatedAt: new Date().toISOString(),
+  };
+
+  return seedPosts[index];
+}
+
 export async function deletePost(id: string): Promise<void> {
   await delay(500);
   const index = seedPosts.findIndex((p) => p.id === id);
