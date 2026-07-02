@@ -1,7 +1,12 @@
 import { create } from "zustand";
 
 import type { PaginatedResponse, Post } from "@/types";
-import { getAll, type GetPostsParams } from "@/services/post.service";
+import {
+  deletePost,
+  getAll,
+  getById,
+  type GetPostsParams,
+} from "@/services/post.service";
 
 interface PostsState {
   posts: Post[];
@@ -25,8 +30,11 @@ interface PostsState {
 
 interface PostsActions {
   fetchPosts: (params?: GetPostsParams) => Promise<void>;
+  fetchPost: (id: string) => Promise<void>;
+  deletePost: (id: string) => Promise<void>;
   setFilters: (filters: Partial<PostsState["filters"]>) => void;
   setPage: (page: number) => void;
+  clearCurrentPost: () => void;
 }
 
 export const usePostsStore = create<PostsState & PostsActions>((set, get) => ({
@@ -74,6 +82,35 @@ export const usePostsStore = create<PostsState & PostsActions>((set, get) => ({
     }
   },
 
+  fetchPost: async (id: string) => {
+    set({ isLoading: true, error: null });
+    try {
+      const post = await getById(id);
+      set({ currentPost: post, isLoading: false });
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Failed to load post";
+      set({ isLoading: false, error: message });
+    }
+  },
+
+  deletePost: async (id) => {
+    set({ isDeleting: true, error: null });
+    try {
+      await deletePost(id);
+      set((state) => ({
+        posts: state.posts.filter((p) => p.id !== id),
+        total: state.total - 1,
+        isDeleting: false,
+      }));
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Failed to delete post";
+      set({ isDeleting: false, error: message });
+      throw error;
+    }
+  },
+
   setFilters: (filters) => {
     set((state) => ({
       filters: { ...state.filters, ...filters },
@@ -82,4 +119,6 @@ export const usePostsStore = create<PostsState & PostsActions>((set, get) => ({
   },
 
   setPage: (page) => set({ page }),
+
+  clearCurrentPost: () => set({ currentPost: null }),
 }));

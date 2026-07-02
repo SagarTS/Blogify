@@ -65,3 +65,22 @@ export async function getAll(
 
   return { data, total, page, perPage, totalPages };
 }
+
+export async function getById(id: string): Promise<Post> {
+  await delay(500);
+  const post = seedPosts.find((p) => p.id === id);
+  if (!post) {
+    throw { message: "Post not found", code: "NOT_FOUND", status: 404 };
+  }
+  return post;
+}
+
+export async function deletePost(id: string): Promise<void> {
+  await delay(500);
+  const index = seedPosts.findIndex((p) => p.id === id);
+  if (index === -1) {
+    throw { message: "Post not found", code: "NOT_FOUND", status: 404 };
+  }
+
+  seedPosts.splice(index, 1);
+}

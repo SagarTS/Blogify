@@ -19,8 +19,11 @@ export const usePosts = () => {
     error,
     filters,
     fetchPosts,
+    fetchPost,
+    deletePost,
     setFilters,
     setPage,
+    clearCurrentPost,
   } = usePostsStore();
 
   return {
@@ -36,7 +39,10 @@ export const usePosts = () => {
     error,
     filters,
     fetchPosts,
+    fetchPost,
+    deletePost,
     setFilters,
+    clearCurrentPost,
     setPage,
   };
 };
